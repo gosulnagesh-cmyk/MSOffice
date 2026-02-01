@@ -1,4 +1,4 @@
-name: CI-CD-Demo-Safe
+name: CI-CD-Blob-Demo
 
 on:
 
@@ -10,7 +10,7 @@ on:
 
 permissions:
 
-  contents: write   #  REQUIRED for release creation
+  contents: write
 
 jobs:
 
@@ -20,21 +20,17 @@ jobs:
 
     steps:
 
-    - uses: actions/checkout@v4
-
-    - name: Build (generate artifact)
+    - name: Build artifact
 
       run: |
 
         mkdir -p dist
 
-        echo "Build artifact generated at $(date)" > dist/app.txt
+        echo "Artifact created at $(date)" > dist/app.txt
 
-    - name: Test (always pass)
+    - name: Test
 
-      run: |
-
-        echo "All tests passed"
+      run: echo "Tests passed"
 
     - name: Upload Build Artifact
 
@@ -64,18 +60,22 @@ jobs:
 
         path: dist/
 
-    - name: Create Release
+    - name: Upload to Azure Blob Storage
 
-      uses: softprops/action-gh-release@v2
+      uses: azure/cli@v2
 
       with:
 
-        tag_name: demo-${{ github.run_number }}
+        inlineScript: |
 
-        name: Demo Release ${{ github.run_number }}
+          az storage blob upload \
 
-        files: dist/*
+            --connection-string "${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}" \
 
-      env:
+            --container-name demo \
 
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            --file dist/app.txt \
+
+            --name app-${{ github.run_number }}.txt \
+
+            --overwrite
