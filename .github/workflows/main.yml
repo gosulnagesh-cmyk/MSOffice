@@ -50,6 +50,6 @@ jobs:
 
           az storage blob upload-batch \
             --connection-string "${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}" \
-            --destination demo \
+            --destination build \
             --source dist/build-artifact \
             --overwrite
